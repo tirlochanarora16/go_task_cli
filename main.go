@@ -69,7 +69,10 @@ func main() {
 		case Add:
 			addTask(fileName, input, &tasks)
 		case List:
-			fmt.Println(tasks)
+			tasksList := listTasks(input, &tasks)
+			for _, task := range tasksList {
+				fmt.Println(task.ID, task.Name, task.Status)
+			}
 		case Update, MarkInProgress, MarkDone:
 			fmt.Println("Update task")
 		case Delete:
@@ -182,4 +185,32 @@ func addTask(fileName string, input string, tasks *[]Task) {
 	}
 
 	fmt.Println(`Task added successfully witn ID: `, id)
+}
+
+// function for listing all the tasks
+func listTasks(input string, tasks *[]Task) []Task {
+	command := strings.Split(input, ` `)
+
+	if len(command) > 2 {
+		fmt.Println("Please enter a valid command! (eg: list, list done, list in-progress)")
+		return nil
+	}
+
+	// i.e the user has entered only "list"
+	if len(command) == 1 {
+		return *tasks
+	}
+
+	// user has requested a filter, eg: done, in-progress
+	filter := command[1]
+
+	if filter != "done" && filter != "in-progress" {
+		fmt.Println("Invalid filter. Enter use 'done' or 'in-progress'.")
+		return nil
+	}
+
+	fmt.Println(filter)
+
+	return nil
+
 }
