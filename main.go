@@ -179,5 +179,5 @@ func addTask(fileName string, input string, tasks *[]Task) {
 		return
 	}
 
-	fmt.Printf(`Task added successfully witn ID: %d`, id)
+	fmt.Println(`Task added successfully witn ID: `, id)
 }
