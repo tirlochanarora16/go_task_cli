@@ -189,6 +189,11 @@ func addTask(fileName string, input string, tasks *[]Task) {
 
 // function for listing all the tasks
 func listTasks(input string, tasks *[]Task) []Task {
+	if len(*tasks) == 0 {
+		fmt.Println("No tasks to diplay!!")
+		return nil
+	}
+
 	command := strings.Split(input, ` `)
 
 	if len(command) > 2 {
