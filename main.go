@@ -149,8 +149,10 @@ func addTask(fileName string, input string, tasks *[]Task) {
 		return
 	}
 
+	id := len(*tasks)
+
 	newTask := Task{
-		ID:     len(*tasks),
+		ID:     id,
 		Name:   taskName,
 		Status: NotDone,
 	}
@@ -177,5 +179,5 @@ func addTask(fileName string, input string, tasks *[]Task) {
 		return
 	}
 
-	fmt.Println(`Task added successfully!!`)
+	fmt.Printf(`Task added successfully witn ID: %d`, id)
 }
