@@ -11,13 +11,15 @@ import (
 type Status string
 
 const (
-	NotDone    Status = "not done"
-	InProgress Status = "In Progress"
-	Done       Status = "Done"
-	Add        string = "add"
-	Update     string = "update"
-	List       string = "list"
-	Delete     string = "delete"
+	NotDone        Status = "not done"
+	InProgress     Status = "In Progress"
+	Done           Status = "Done"
+	Add            string = "add"
+	Update         string = "update"
+	List           string = "list"
+	Delete         string = "delete"
+	MarkInProgress string = "mark-in-progress"
+	MarkDone       string = "mark-done"
 )
 
 type Task struct {
@@ -68,7 +70,7 @@ func main() {
 			addTask(fileName, input, &tasks)
 		case List:
 			fmt.Println(tasks)
-		case Update:
+		case Update, MarkInProgress, MarkDone:
 			fmt.Println("Update task")
 		case Delete:
 			fmt.Println("delete tasks")
@@ -122,7 +124,7 @@ func readJsonFile(fileName string, tasks *[]Task) {
 
 // function to check if the user entered a valid command
 func contains(command string) bool {
-	commands := []string{Add, List, Update, Delete}
+	commands := []string{Add, List, Update, Delete, MarkInProgress, MarkDone}
 	for _, option := range commands {
 		if option == command {
 			return true
