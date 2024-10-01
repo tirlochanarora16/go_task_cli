@@ -209,13 +209,26 @@ func listTasks(input string, tasks *[]Task) []Task {
 	// user has requested a filter, eg: done, in-progress
 	filter := command[1]
 
-	if filter != "done" && filter != "in-progress" {
-		fmt.Println("Invalid filter. Enter use 'done' or 'in-progress'.")
+	if filter != "done" && filter != "in-progress" && filter != "not-done" {
+		fmt.Println("Invalid filter. Either use 'done', 'in-progress', OR not-done.")
 		return nil
 	}
 
-	fmt.Println(filter)
+	filter = strings.Replace(filter, "-", " ", -1)
 
-	return nil
+	filteredTask := []Task{}
+
+	for _, option := range *tasks {
+		if option.Status == Status(strings.ToLower(filter)) {
+			filteredTask = append(filteredTask, option)
+		}
+	}
+
+	if len(filteredTask) == 0 {
+		fmt.Println("No tasks found matching the filter!")
+		return nil
+	}
+
+	return filteredTask
 
 }
