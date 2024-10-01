@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -12,8 +13,8 @@ type Status string
 
 const (
 	NotDone        Status = "not done"
-	InProgress     Status = "In Progress"
-	Done           Status = "Done"
+	InProgress     Status = "in-progress"
+	Done           Status = "done"
 	Add            string = "add"
 	Update         string = "update"
 	List           string = "list"
@@ -74,7 +75,7 @@ func main() {
 				fmt.Println(task.ID, task.Name, task.Status)
 			}
 		case Update, MarkInProgress, MarkDone:
-			fmt.Println("Update task")
+			updateTask(input, command, &tasks, fileName)
 		case Delete:
 			fmt.Println("delete tasks")
 		}
@@ -162,8 +163,6 @@ func addTask(fileName string, input string, tasks *[]Task) {
 		Status: NotDone,
 	}
 
-	fmt.Println("new tasks", newTask)
-
 	*tasks = append(*tasks, newTask)
 
 	file, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
@@ -230,5 +229,71 @@ func listTasks(input string, tasks *[]Task) []Task {
 	}
 
 	return filteredTask
+
+}
+
+// function to update a task
+func updateTask(input string, command string, tasks *[]Task, fileName string) {
+	// removing any kind of extra space in the string
+	words := strings.Fields(input)
+	input = strings.Join(words, " ")
+
+	inputSlice := strings.Split(input, " ")
+
+	if len(inputSlice) <= 1 {
+		fmt.Println("Please enter the ID of the task to update")
+		return
+	}
+
+	// converting string to int
+	id, err := strconv.Atoi(inputSlice[1])
+
+	if err != nil {
+		fmt.Println("Enter an integer as ID!")
+		return
+	}
+
+	var status Status
+
+	doesIdExists := false
+
+	if command == MarkDone {
+		status = Done
+	} else {
+		status = InProgress
+	}
+
+	for i, option := range *tasks {
+		if option.ID == id {
+			(*tasks)[i].Status = status
+			doesIdExists = true
+
+		}
+	}
+
+	if !doesIdExists {
+		fmt.Println("Enter a valid ID to update!")
+		return
+	}
+
+	file, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+
+	if err != nil {
+		fmt.Println("Error opening the file for inserting data!!", err)
+		return
+	}
+
+	defer file.Close()
+
+	// data := *tasks
+	encoder := json.NewEncoder(file)
+	err2 := encoder.Encode(*tasks)
+
+	if err2 != nil {
+		fmt.Println("Error enccoding tasks to write to json file!", err)
+		return
+	}
+
+	fmt.Println("Task with ID: ", id, "updated successfully!!")
 
 }
