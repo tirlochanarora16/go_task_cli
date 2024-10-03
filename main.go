@@ -77,7 +77,7 @@ func main() {
 		case Update, MarkInProgress, MarkDone:
 			updateTask(input, command, &tasks, fileName)
 		case Delete:
-			fmt.Println("delete tasks")
+			deleteTask(input, command, &tasks, fileName)
 		}
 	}
 }
@@ -213,7 +213,9 @@ func listTasks(input string, tasks *[]Task) []Task {
 		return nil
 	}
 
-	filter = strings.Replace(filter, "-", " ", -1)
+	if filter != "in-progress" {
+		filter = strings.Replace(filter, "-", " ", -1)
+	}
 
 	filteredTask := []Task{}
 
@@ -232,11 +234,16 @@ func listTasks(input string, tasks *[]Task) []Task {
 
 }
 
+func sanitizeInput(input string) string {
+	words := strings.Fields(input)
+	input = strings.Join(words, " ")
+	return input
+}
+
 // function to update a task
 func updateTask(input string, command string, tasks *[]Task, fileName string) {
 	// removing any kind of extra space in the string
-	words := strings.Fields(input)
-	input = strings.Join(words, " ")
+	input = sanitizeInput(input)
 
 	inputSlice := strings.Split(input, " ")
 
@@ -295,5 +302,10 @@ func updateTask(input string, command string, tasks *[]Task, fileName string) {
 	}
 
 	fmt.Println("Task with ID: ", id, "updated successfully!!")
+
+}
+
+// function to delete a task
+func deleteTask(input string, command string, tasks *[]Task, fileName string) {
 
 }
