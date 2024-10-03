@@ -77,7 +77,7 @@ func main() {
 		case Update, MarkInProgress, MarkDone:
 			updateTask(input, command, &tasks, fileName)
 		case Delete:
-			deleteTask(input, command, &tasks, fileName)
+			deleteTask(input, &tasks, fileName)
 		}
 	}
 }
@@ -234,18 +234,17 @@ func listTasks(input string, tasks *[]Task) []Task {
 
 }
 
-func sanitizeInput(input string) string {
+func sanitizeInput(input string) []string {
 	words := strings.Fields(input)
 	input = strings.Join(words, " ")
-	return input
+	inputSlice := strings.Split(input, " ")
+	return inputSlice
 }
 
 // function to update a task
 func updateTask(input string, command string, tasks *[]Task, fileName string) {
 	// removing any kind of extra space in the string
-	input = sanitizeInput(input)
-
-	inputSlice := strings.Split(input, " ")
+	inputSlice := sanitizeInput(input)
 
 	if len(inputSlice) <= 1 {
 		fmt.Println("Please enter the ID of the task to update")
@@ -306,6 +305,57 @@ func updateTask(input string, command string, tasks *[]Task, fileName string) {
 }
 
 // function to delete a task
-func deleteTask(input string, command string, tasks *[]Task, fileName string) {
+func deleteTask(input string, tasks *[]Task, fileName string) {
+	inputSlice := sanitizeInput(input)
 
+	if len(inputSlice) == 1 {
+		fmt.Println("Please enter the ID you want to delete")
+		return
+	}
+
+	id, err := strconv.Atoi(inputSlice[1])
+
+	if err != nil {
+		fmt.Println("Enter an integer as ID!")
+		return
+	}
+
+	var updatedTasksSlice []Task
+
+	for i := range *tasks {
+		option := (*tasks)[i]
+
+		if option.ID != id {
+			updatedTasksSlice = append(updatedTasksSlice, option)
+		}
+	}
+
+	// if both the length are same, it means the user entered a wrong ID
+	if len(updatedTasksSlice) == len(*tasks) {
+		fmt.Println("Please enter a valid ID!!")
+		return
+	}
+
+	// updating the oringal tasks slice
+	*tasks = updatedTasksSlice
+
+	file, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+
+	if err != nil {
+		fmt.Println("Error opening the file for inserting data!!", err)
+		return
+	}
+
+	defer file.Close()
+
+	// data := *tasks
+	encoder := json.NewEncoder(file)
+	err2 := encoder.Encode(&updatedTasksSlice)
+
+	if err2 != nil {
+		fmt.Println("Error enccoding tasks to write to json file!", err)
+		return
+	}
+
+	fmt.Println("Task with ID: ", id, "deleted successfully!!")
 }
