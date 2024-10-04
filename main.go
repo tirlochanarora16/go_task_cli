@@ -155,8 +155,14 @@ func addTask(fileName string, input string, tasks *[]Task) {
 		return
 	}
 
-	task := (*tasks)[len(*tasks)-1]
-	id := task.ID + 1
+	var id int
+
+	if len(*tasks) > 0 {
+		id = (*tasks)[len(*tasks)-1].ID + 1
+	} else {
+		id = 0
+	}
+
 	newTask := Task{
 		ID:     id,
 		Name:   taskName,
@@ -234,17 +240,17 @@ func listTasks(input string, tasks *[]Task) []Task {
 
 }
 
-func sanitizeInput(input string) []string {
+func sanitizeInput(input string) (string, []string) {
 	words := strings.Fields(input)
 	input = strings.Join(words, " ")
 	inputSlice := strings.Split(input, " ")
-	return inputSlice
+	return input, inputSlice
 }
 
 // function to update a task
 func updateTask(input string, command string, tasks *[]Task, fileName string) {
 	// removing any kind of extra space in the string
-	inputSlice := sanitizeInput(input)
+	input, inputSlice := sanitizeInput(input)
 
 	if len(inputSlice) <= 1 {
 		fmt.Println("Please enter the ID of the task to update")
@@ -263,17 +269,42 @@ func updateTask(input string, command string, tasks *[]Task, fileName string) {
 
 	doesIdExists := false
 
+	if command == Update && len(inputSlice) == 2 {
+		fmt.Println(`Enter the updated task name followed by ID. eg: (update 0 "new name")`)
+		return
+	}
+
+	updatedInputSlice := strings.Split(input, `"`)
+	var updatedName string
+
+	if command == Update {
+		if len(updatedInputSlice) < 3 {
+			fmt.Println(`Usage: (update 0 "new name")`)
+			return
+		}
+
+		updatedName = strings.TrimSpace(updatedInputSlice[len(updatedInputSlice)-2])
+
+		if len(updatedName) == 0 {
+			fmt.Println("Name cannot be blank!")
+			return
+		}
+	}
+
 	if command == MarkDone {
 		status = Done
-	} else {
+	} else if command == MarkInProgress {
 		status = InProgress
 	}
 
 	for i, option := range *tasks {
 		if option.ID == id {
-			(*tasks)[i].Status = status
+			if command == Update {
+				(*tasks)[i].Name = updatedName
+			} else {
+				(*tasks)[i].Status = status
+			}
 			doesIdExists = true
-
 		}
 	}
 
@@ -306,7 +337,7 @@ func updateTask(input string, command string, tasks *[]Task, fileName string) {
 
 // function to delete a task
 func deleteTask(input string, tasks *[]Task, fileName string) {
-	inputSlice := sanitizeInput(input)
+	_, inputSlice := sanitizeInput(input)
 
 	if len(inputSlice) == 1 {
 		fmt.Println("Please enter the ID you want to delete")
