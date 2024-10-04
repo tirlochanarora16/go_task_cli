@@ -155,8 +155,8 @@ func addTask(fileName string, input string, tasks *[]Task) {
 		return
 	}
 
-	id := len(*tasks)
-
+	task := (*tasks)[len(*tasks)-1]
+	id := task.ID + 1
 	newTask := Task{
 		ID:     id,
 		Name:   taskName,
